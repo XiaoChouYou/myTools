@@ -1,21 +1,23 @@
-docker部署tomcat项目
+# docker部署tomcat项目
 
-1.上传war包
-2.制作镜像 Dockerfile
-3.调用镜像启动新的容器
+## 1.上传war包
+## 2.制作镜像 Dockerfile
+## 3.调用镜像启动新的容器
 更新升级
+```
 1.docker stop item
-2. docker rm item
+2.docker rm item
 3.docker-compose -f docker-compose.yml up -d item
+```
 
-一. 前言
+## 一. 前言
 关于 docker compose 技术可以查看官方文档 Docker Compose
 
 以下的内容是确立在已经下载好 Docker 以及 Docker Compose，可参看 Docker Compose 的官方安装教程 Install Docker Compose
 
-二. Docker Compose 配置文件的构建参数说明
+## 二. Docker Compose 配置文件的构建参数说明
 首先，官方提供了一个 yaml Docker Compose 配置文件的标准例子
-
+```
 version: "3"
 services:
 
@@ -108,6 +110,7 @@ backend:
 
 volumes:
 db-data:
+```
 
 此文件配置了多个服务，关于此配置文件的各个语句含义就需要弄懂配置选项的含义了
 
@@ -122,8 +125,8 @@ compose 文件是一个定义服务、 网络和卷的 YAML 文件 。Compose �
 
 可以使用 Bash 类 ${VARIABLE} 语法在配置值中使用环境变量。
 
-配置选项
-１.bulid
+## 配置选项
+### １.bulid
 服务除了可以基于指定的镜像，还可以基于一份 Dockerfile，在使用 up 启动之时执行构建任务，这个构建标签就是 build，它可以指定 Dockerfile 所在文件夹的路径。Compose 将会利用它自动构建这个镜像，然后使用这个镜像启动服务容器
 build: /path/to/build/dir
 也可以是相对路径
@@ -134,13 +137,14 @@ build:
 context: ../
 dockerfile: path/of/Dockerfile
 例子
-
+```
 version: '3'
 services:
 webapp:
 build: ./dir
+```
 如果 context 中有指定的路径，并且可以选定 Dockerfile 和 args。那么 arg 这个标签，就像 Dockerfile 中的 ARG 指令，它可以在构建过程中指定环境变量，但是在构建成功后取消，在 docker-compose.yml 文件中也支持这样的写法：
-
+```
 version: '3'
 services:
 webapp:
@@ -149,72 +153,82 @@ context: ./dir
 dockerfile: Dockerfile-alternate
 args:
 buildno: 1
+```
 与 ENV 不同的是，ARG 可以为空值
-
+```
 args:
 - buildno
 - password
+```
 如果要指定 image 以及 build ，选项格式为
-
+```
 build: ./dir
 image: webapp:tag
+```
 这会在 ./dir 目录生成一个名为 webaapp 和标记为 tag 的镜像
 
 Note:当用(Version 3) Compose 文件在群集模式下部署堆栈时，该选项被忽略。因为 docker stack 命令只接受预先构建的镜像
 
-2. context
+### 2. context
 context 选项可以是 Dockerfile 的文件路径，也可以是到链接到 git 仓库的 url
 
 当提供的值是相对路径时，它被解析为相对于撰写文件的路径，此目录也是发送到 Docker 守护进程的 context
-
+```
 build:
 context: ./dir
-３. dockerfile
+```
+### ３. dockerfile
 使用此 dockerfile 文件来构建，必须指定构建路径
-
+```
 build:
 context: .
 dockerfile: Dockerfile-alternate
-４. args
+```
+### ４. args
 添加构建参数，这些参数是仅在构建过程中可访问的环境变量
 
 首先， 在Dockerfile中指定参数：
-
+```
 ARG buildno
 ARG password
 
 RUN echo "Build number: $buildno"
 RUN script-requiring-password.sh "$password"
+```
 然后指定 build 下的参数,可以传递映射或列表
-
+```
 build:
 context: .
 args:
 buildno: 1
 password: secret
+```
 或
-
+```
 build:
 context: .
 args:
 - buildno=1
 - password=secret
+```
 指定构建参数时可以省略该值，在这种情况下，构建时的值默认构成运行环境中的值
-
+```
 args:
 - buildno
 - password
+```
 Note： YAML 布尔值（true，false，yes，no，on，off）必须使用引号括起来，以为了能够正常被解析为字符串
 
-５. cache_from
+### ５. cache_from
 编写缓存解析镜像列表
-
+```
 build:
 context: .
 cache_from:
 - alpine:latest
 - corp/web_app:3.14
-6. labels
+```
+### 6. labels
 使用 Docker标签 将元数据添加到生成的镜像中，可以使用数组或字典。
 
 建议使用反向 DNS 标记来防止签名与其他软件所使用的签名冲突
