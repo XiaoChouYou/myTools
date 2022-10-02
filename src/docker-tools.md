@@ -232,61 +232,72 @@ cache_from:
 使用 Docker标签 将元数据添加到生成的镜像中，可以使用数组或字典。
 
 建议使用反向 DNS 标记来防止签名与其他软件所使用的签名冲突
-
+```
 build:
 context: .
 labels:
 com.example.description: "Accounting webapp"
 com.example.department: "Finance"
 com.example.label-with-empty-value: ""
+```
 或
-
+```
 build:
 context: .
 labels:
 - "com.example.description=Accounting webapp"
 - "com.example.department=Finance"
 - "com.example.label-with-empty-value"
-7.shm_size
+```
+### 7.shm_size
 设置容器 /dev/shm 分区的大小，值为表示字节的整数值或表示字符的字符串
-
+```
 build:
 context: .
 shm_size: '2gb'
+```
 或
+```
 build:
 context: .
 shm_size: 10000000
-8. target
+```
+### 8. target
 根据对应的 Dockerfile 构建指定 Stage
-
+```
 build:
 context: .
 target: prod
-9. cap_add、cap_drop
+```
+### 9. cap_add、cap_drop
 添加或删除容器功能，可查看 man 7 capabilities
-
+```
 cap_add:
 - ALL
 
 cap_drop:
 - NET_ADMIN
 - SYS_ADMIN
+```
 Note:当用(Version 3) Compose 文件在群集模式下部署堆栈时，该选项被忽略。因为 docker stack 命令只接受预先构建的镜像
 
-10. command
+### 10. command
 覆盖容器启动后默认执行的命令
+```
 command: bundle exec thin -p 3000
+```
 该命令也可以是一个列表，方法类似于 dockerfile:
+```
 command: ["bundle", "exec", "thin", "-p", "3000"]
-11. configs
+```
+### 11. configs
 使用服务 configs 配置为每个服务赋予相应的访问权限，支持两种不同的语法。
 
 Note: 配置必须存在或在 configs 此堆栈文件的顶层中定义，否则堆栈部署失效
 
-1.SHORT 语法
+#### 1.SHORT 语法
 SHORT 语法只能指定配置名称，这允许容器访问配置并将其安装在 /<config_name> 容器内，源名称和目标装入点都设为配置名称。
-
+```
 version: "3.3"
 services:
 redis:
@@ -301,11 +312,12 @@ my_config:
 file: ./my_config.txt
 my_other_config:
 external: true
+```
 以上实例使用 SHORT 语法将 redis 服务访问授予 my_config 和 my_other_config ,并被 my_other_config 定义为外部资源，这意味着它已经在 Docker 中定义。可以通过 docker config create 命令或通过另一个堆栈部署。如果外部部署配置都不存在，则堆栈部署会失败并出现 config not found 错误。
 
 Note: config 定义仅在 3.3 版本或在更高版本的撰写文件格式中受支持，YAML 的布尔值（true, false, yes, no, on, off）必须要使用引号引起来（单引号、双引号均可），否则会当成字符串解析。
 
-2. LONG 语法
+#### 2. LONG 语法
 LONG 语法提供了创建服务配置的更加详细的信息
 
 source:Docker 中存在的配置的名称
@@ -313,7 +325,7 @@ target:要在服务的任务中装载的文件的路径或名称。如果未指�
 uid 和 gid:在服务的任务容器中拥有安装的配置文件的数字 UID 或 GID。如果未指定，则默认为在Linux上。Windows不支持。
 mode:在服务的任务容器中安装的文件的权限，以八进制表示法。例如，0444 代表文件可读的。默认是 0444。如果配置文件无法写入，是因为它们安装在临时文件系统中，所以如果设置了可写位，它将被忽略。可执行位可以设置。如果您不熟悉 UNIX 文件权限模式，Unix Permissions Calculator
 下面示例在容器中将 my_config 名称设置为 redis_config，将模式设置为 0440（group-readable）并将用户和组设置为 103。该　｀redis　服务无法访问 my_other_config 配置。
-
+```
 version: "3.3"
 services:
 redis:
@@ -331,38 +343,44 @@ my_config:
 file: ./my_config.txt
 my_other_config:
 external: true
+```
 可以同时授予多个配置的服务相应的访问权限，也可以混合使用 LONG 和 SHORT 语法。定义配置并不意味着授予服务访问权限。
 
-12. cgroup_parent
+### 12. cgroup_parent
 可以为容器选择一个可选的父 cgroup
+```
 cgroup_parent: m-executor-abcd
+```
 注意：当 使用（Version 3）Compose 文件在群集模式下部署堆栈时，忽略此选项
 
-13. container_name
+### 13. container_name
 为自定义的容器指定一个名称，而不是使用默认的名称
-
+```
 container_name: my-web-container
+```
 因为 docker 容器名称必须是唯一的，所以如果指定了一个自定义的名称，不能扩展一个服务超过 1 个容器
 
-14. credential_spec
+### 14. credential_spec
 为托管服务账户配置凭据规范，此选项仅适用于 Windows 容器服务
 
 在 credential_spec 上的配置列表格式为 file://<filename> 或 registry://<value-name>
 
 使用 file: 应该注意引用的文件必须存在于　CredentialSpecs,docker 数据目录的子目录中。在 Windows 上，该目录默认为 C:\ProgramData\Docker\。以下示例从名为C:\ProgramData\Docker\CredentialSpecs\my-credential-spec.json 的文件加载凭证规范 ：
-
+```
 credential_spec:
 file: my-credential-spec.json
+```
 使用 registry: 将从守护进程主机上的 Windows 注册表中读取凭据规范。其注册表值必须位于：
 
 HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization\Containers\CredentialSpecs
 下面的示例通过 my-credential-spec 注册表中指定的值加载凭证规范：
-
+```
 credential_spec:
 registry: my-credential-spec
-15. deploy
+```
+### 15. deploy
 指定与部署和运行服务相关的配置
-
+```
 version: '3'
 services:
 redis:
@@ -374,12 +392,15 @@ parallelism: 2
 delay: 10s
 restart_policy:
 condition: on-failure
+```
 这里有几个子选项
-1. endpoint_mode
+#### 1. endpoint_mode
 指定连接到群组外部客户端服务发现方法
 
 endpoint_mode:vip ：Docker 为该服务分配了一个虚拟 IP(VIP),作为客户端的 “前端“ 部位用于访问网络上的服务。
 endpoint_mode: dnsrr : DNS轮询（DNSRR）服务发现不使用单个虚拟 IP。Docker为服务设置 DNS 条目，使得服务名称的 DNS 查询返回一个 IP 地址列表，并且客户端直接连接到其中的一个。如果想使用自己的负载平衡器，或者混合 Windows 和 Linux 应用程序，则 DNS 轮询调度（round-robin）功能就非常实用。
+
+```
 version: "3.3"
 
 services:
@@ -409,9 +430,10 @@ volumes:
 db-data:
 
 networks:
+```
 相关信息：Swarm 模式 CLI 命令 、Configure 服务发现
 
-2.labels
+#### 2.labels
 指定服务的标签，这些标签仅在服务上设置。
 
 version: "3"
