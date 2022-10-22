@@ -1,5 +1,4 @@
 ```shell
-
 docker run   \
 --restart=always  \
 --name mysql  \
