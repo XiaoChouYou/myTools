@@ -8,5 +8,5 @@ docker run   \
 -v /data/app/mysql8/mysql-files:/var/lib/mysql-files  \
 -p 13306:3306  \
 -e MYSQL_ROOT_PASSWORD=123456  \
--d mysql8-test
+-d mysql:8.0.22 
 ```

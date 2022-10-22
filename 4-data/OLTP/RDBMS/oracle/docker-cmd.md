@@ -27,3 +27,7 @@ create user test identified by test;
 grant connect,resource,dba to test;
 
 ```
+
+```shell
+test/test@ip:port@ORCL
+```
